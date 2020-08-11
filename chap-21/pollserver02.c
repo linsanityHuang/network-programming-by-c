@@ -2,7 +2,8 @@
 
 #define INIT_SIZE 24
 
-struct pollop {
+struct pollop
+{
     int event_count;
     int nfds;
     int realloc_copy;
@@ -12,18 +13,21 @@ struct pollop {
 
 static struct pollop *my_pollop;
 
-void init_event_set() {
+void init_event_set()
+{
     my_pollop = malloc(sizeof(struct pollop));
     my_pollop->event_count = my_pollop->nfds = my_pollop->realloc_copy = 0;
 
     my_pollop->event_set = malloc(INIT_SIZE * sizeof(struct pollfd));
-
 }
 
-void add_event_set(int fd, int event) {
+void add_event_set(int fd, int event)
+{
     //找到一个可以记录该连接套接字的位置
-    for (i = 1; i < FOPEN_MAX; i++) {
-        if (client[i].fd < 0) {
+    for (i = 1; i < FOPEN_MAX; i++)
+    {
+        if (client[i].fd < 0)
+        {
             client[i].fd = connected_fd;
             client[i].events = POLLRDNORM;
             break;
@@ -31,8 +35,8 @@ void add_event_set(int fd, int event) {
     }
 }
 
-
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
     int listen_fd, connected_fd;
     int ready_number;
     ssize_t n;
@@ -52,19 +56,22 @@ int main(int argc, char **argv) {
         client[i].fd = -1;
     int maxi = 0;
 
-
-    for (;;) {
-        if ((ready_number = poll(client, maxi + 1, -1)) < 0) {
+    for (;;)
+    {
+        if ((ready_number = poll(client, maxi + 1, -1)) < 0)
+        {
             error(1, errno, "poll failed ");
         }
 
-        if (client[0].revents & POLLRDNORM) {
+        if (client[0].revents & POLLRDNORM)
+        {
             socklen_t client_len = sizeof(client_addr);
-            connected_fd = accept(listen_fd, (struct sockaddr *) &client_addr, &client_len);
+            connected_fd = accept(listen_fd, (struct sockaddr *)&client_addr, &client_len);
 
-            add_event_set(connected_fd,POLLRDNORM);
+            add_event_set(connected_fd, POLLRDNORM);
 
-            if (i == FOPEN_MAX) {
+            if (i == FOPEN_MAX)
+            {
                 error(1, errno, "can not hold so many clients");
             }
 
@@ -75,22 +82,32 @@ int main(int argc, char **argv) {
                 continue;
         }
 
-        for (i = 1; i <= maxi; i++) {
+        for (i = 1; i <= maxi; i++)
+        {
             int socket_fd;
             if ((socket_fd = client[i].fd) < 0)
                 continue;
-            if (client[i].revents & (POLLRDNORM | POLLERR)) {
-                if ((n = read(socket_fd, buf, MAXLINE)) < 0) {
-                    if (errno == ECONNRESET) {
+            if (client[i].revents & (POLLRDNORM | POLLERR))
+            {
+                if ((n = read(socket_fd, buf, MAXLINE)) < 0)
+                {
+                    if (errno == ECONNRESET)
+                    {
                         close(socket_fd);
                         client[i].fd = -1;
-                    } else
+                    }
+                    else
                         error(1, errno, "read error");
-                } else if (n == 0) {
+                }
+                else if (n == 0)
+                {
                     close(socket_fd);
                     client[i].fd = -1;
-                } else {
-                    if (write(socket_fd, buf, n) < 0) {
+                }
+                else
+                {
+                    if (write(socket_fd, buf, n) < 0)
+                    {
                         error(1, errno, "write error");
                     }
                 }
